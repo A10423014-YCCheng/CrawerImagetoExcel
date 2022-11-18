@@ -19,30 +19,19 @@ search_field.send_keys('selenium')  # 輸入selenium到對應位置
 search_field.submit()  # 提交
 
 # 搜尋selenium完的畫面#
-###取得書名###
-book_name = driver.find_elements(By.CLASS_NAME, 'book-data')
-
-book_l = []
-for item in book_name:
-    book_l.append(item.text)
-
-title_l = []
-for item in book_l:
-    title_l.append(item.split('\n')[0])
 
 ###取得每本書的連結###
 link_l = []
-for title in title_l:
-    book_link = driver.find_elements(By.LINK_TEXT, title)
-    for item in book_link:
-        link_l.append(item.get_attribute('href'))
+book_link = driver.find_elements(By.XPATH, '//*/div/strong/a')
+for item in book_link:
+    link_l.append(item.get_attribute('href'))
 
 ###進去每本書的網頁，抓圖片url&書的完整名稱###
 complete_title = []
 img_url = []
 for link in link_l:
     driver.get(link)
-    url = driver.find_element(By.XPATH, '/html/body/div[3]/div[3]/div/div[1]/article/section[1]/div[1]/div[2]/div/a[1]')
+    url = driver.find_element(By.XPATH, '//div[@class="grid grid-cols-12"]/div/a')
     img_url.append(url.get_attribute('data-featherlight'))
     name = driver.find_element(By.CLASS_NAME, 'item-title')
     complete_title.append(name.text)
@@ -55,7 +44,10 @@ path = r'D:\Python\Program\DB and Web crawler\20221116\Image\\'
 
 # 去掉書名中不能存成檔名的符號
 def filename_replace(str1):
-    str1 = str1.replace('/', '').replace('\\', '').replace(':', '').replace('?', '').replace('*', '').replace('"','').replace('>', '').replace('<', '').replace('|', '')
+    str1 = str1.replace('/', '').replace('\\', '')\
+        .replace(':', '').replace('?', '')\
+        .replace('*', '').replace('"','')\
+        .replace('>', '').replace('<', '').replace('|', '')
     return str1
 
 
@@ -78,7 +70,7 @@ for i,item in enumerate(complete_title):
     x = i+1
     ws1.row_dimensions[x].height = 105
     img = Image(path + filename_replace(item) + '.jpg')
-    imgsize = (1997/20,2572/20)
+    imgsize = (1997/20,2572/20) #設置圖片縮放比例(拿最大張的照片/20)
     img.width, img.height = imgsize
     position = 'A' + str(x)
     ws1.add_image(img,position)
